@@ -1,0 +1,22 @@
+# pdf-native-ocr: DocTR + Qwen OCR → Native Text PDF
+# Minimal dependencies — no PaddleX, no MMOCR, no layout detection
+
+# DocTR for word-level bounding box detection (Apache 2.0)
+python-doctr[torch]>=0.10.0
+
+# PyMuPDF for PDF rendering + page dimensions (AGPL)
+PyMuPDF>=1.24.0
+
+# OpenAI-compatible client for Qwen VLM API (MIT)
+openai>=1.0.0
+
+# .env file loading
+python-dotenv>=1.0.0
+
+# Image processing
+Pillow>=9.0.0
+opencv-python-headless>=4.5.0
+numpy>=1.19.0
+
+# Note: PyTorch must be installed separately for DGX Spark (sm_121):
+#   pip install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu128

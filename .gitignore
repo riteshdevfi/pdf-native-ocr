@@ -1,0 +1,26 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environment / secrets
+.env
+
+# Pipeline outputs
+results/
+logs/
+uploads/
+
+# Input PDFs (potentially sensitive)
+input/
+
+# Java build artifacts
+standalone_java_project/target/
+
+# OS
+.DS_Store

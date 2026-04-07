@@ -39,7 +39,7 @@ except ImportError:
 # Input: set INPUT_FILE to process a single PDF, or INPUT_DIR to process all PDFs in a folder.
 # INPUT_FILE takes priority — set it to "" to use INPUT_DIR instead.
 # INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 2 Barker Karpis Part 01 of 10_15pg extract.pdf"
-INPUT_FILE = ""
+INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/0003.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/0003.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 3 Al Capone Vault_15pg extract.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 1 Leave Policy Guide Vault 1_15pg extract.pdf"
@@ -50,7 +50,8 @@ INPUT_DIR = "/home/ritesh_manchikanti/work/accessibility/pdf-accessibility-api/f
 PAGES: List[int] = []
 
 # Output directory (pipeline JSON + tagged PDFs go here)
-OUTPUT_DIR =  "/home/ritesh_manchikanti/work/accessibility/pdf-accessibility-api/files/jpeg2000_samples/output_mar17"
+OUTPUT_DIR = "./results/"
+# "/home/ritesh_manchikanti/work/accessibility/pdf-accessibility-api/files/jpeg2000_samples/output_mar17"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/results/march_17"
 #
 # "./results"

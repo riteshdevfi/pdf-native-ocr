@@ -14,7 +14,7 @@ echo "=========================================="
 # Create venv
 if [ ! -d "$VENV_DIR" ]; then
     echo "Creating Python venv at $VENV_DIR..."
-    python3.11 -m venv "$VENV_DIR"
+    python3 -m venv "$VENV_DIR"
 else
     echo "Venv already exists at $VENV_DIR"
 fi

@@ -39,20 +39,27 @@ except ImportError:
 # Input: set INPUT_FILE to process a single PDF, or INPUT_DIR to process all PDFs in a folder.
 # INPUT_FILE takes priority — set it to "" to use INPUT_DIR instead.
 # INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 2 Barker Karpis Part 01 of 10_15pg extract.pdf"
-INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 3 Al Capone Vault_15pg extract.pdf"
+INPUT_FILE = ""
+# "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/0003.pdf"
+# "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 3 Al Capone Vault_15pg extract.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 1 Leave Policy Guide Vault 1_15pg extract.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/DOGS TEST PDF.pdf"
-INPUT_DIR = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input"
+INPUT_DIR = "/home/ritesh_manchikanti/work/accessibility/pdf-accessibility-api/files/jpeg2000_samples/JPEG2000 Compression"
+# "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input"
 # Pages to process (1-based). Empty list = all pages. Applies to all files.
 PAGES: List[int] = []
 
 # Output directory (pipeline JSON + tagged PDFs go here)
-OUTPUT_DIR = "./results"
+OUTPUT_DIR =  "/home/ritesh_manchikanti/work/accessibility/pdf-accessibility-api/files/jpeg2000_samples/output_mar17"
+# "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/results/march_17"
+#
+# "./results"
 
 # DocTR settings
 DPI = 300
 DOCTR_DET_ARCH = "db_resnet50"
 DOCTR_RECO_ARCH = "crnn_vgg16_bn"
+DOCTR_BATCH_SIZE = 32  # pages per DocTR batch (lower = less GPU memory)
 
 # LLM provider — reads from .env (LLM_PROVIDER, LLM_API_KEY, LLM_MODEL)
 # Falls back to QWEN_* env vars, then hardcoded defaults for backward compat
@@ -77,6 +84,11 @@ USE_QWEN_TEXT = os.getenv("USE_QWEN_TEXT", "true").lower() in ("true", "1", "yes
 USE_QWEN_FALLBACK = os.getenv("USE_QWEN_FALLBACK", "true").lower() in ("true", "1", "yes", "on")
 QWEN_FALLBACK_AVG_RATIO = float(os.getenv("QWEN_FALLBACK_AVG_RATIO", "0.5"))
 QWEN_FULL_OCR_MAX_TOKENS = int(os.getenv("QWEN_FULL_OCR_MAX_TOKENS", "8192"))
+
+# Multi-orientation DocTR: runs at 0°/90°/180°/270° and merges via NMS.
+# Useful for pages with mixed text orientations (e.g. rotated stamps).
+# Adds 'angle' field per word in pipeline JSON output.
+MULTI_ORIENTATION = os.getenv("MULTI_ORIENTATION", "false").lower() in ("true", "1", "yes", "on")
 
 # Line grouping
 Y_TOLERANCE = 15
@@ -304,9 +316,13 @@ def process_pdf(pdf_path: str, predictor, qwen_client):
     print("Step 2: Running DocTR word detection")
     print(f"{'='*60}")
 
-    from ocr.doctr_ocr import run_doctr
-
-    ocr_pages, doctr_time = run_doctr(predictor, images)
+    if MULTI_ORIENTATION:
+        from ocr.doctr_ocr import run_doctr_multi_orientation
+        print(f"  Mode: multi-orientation (0°/90°/180°/270° + NMS)")
+        ocr_pages, doctr_time = run_doctr_multi_orientation(predictor, images, batch_size=DOCTR_BATCH_SIZE)
+    else:
+        from ocr.doctr_ocr import run_doctr
+        ocr_pages, doctr_time = run_doctr(predictor, images, batch_size=DOCTR_BATCH_SIZE)
     total_words = sum(len(p["words"]) for p in ocr_pages)
     print(f"  DocTR: {total_words} words in {doctr_time:.1f}s")
 
@@ -506,7 +522,18 @@ def main():
     if INPUT_FILE and os.path.isfile(INPUT_FILE):
         pdf_files = [Path(INPUT_FILE)]
     else:
-        pdf_files = sorted(Path(INPUT_DIR).glob("*.pdf"))
+        # Filter to specific files (empty list = all files in INPUT_DIR)
+        ONLY_FILES = [
+            "MET Lab Reports Vol 20 79-33-90 (Image-Only & JPEG2000 Compression).pdf",
+            "Metallurigical Report July 1967 Vol 5 (Image-Only & JPEG2000 Compression).pdf",
+            "Report No 00-001 thru 00-050 Vol 81 (Image-Only & JPEG2000 Compression).pdf",
+            "Vol 33 86-28 to 86-64 (Image-Only & JPEG2000 Compression).pdf",
+        ]
+        all_pdfs = sorted(Path(INPUT_DIR).glob("*.pdf"))
+        if ONLY_FILES:
+            pdf_files = [p for p in all_pdfs if p.name in ONLY_FILES]
+        else:
+            pdf_files = all_pdfs
 
     if not pdf_files:
         print(f"ERROR: No PDF files found. Check INPUT_FILE or INPUT_DIR.")

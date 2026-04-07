@@ -551,29 +551,40 @@ public class StandalonePaddleIntegrator {
 
             float boxWidth = (float) (pdfX1 - pdfX0);
             float boxHeight = Math.max(1.0f, (float)(pdfY1 - pdfY0));
-            
-            // Use 100% of bbox height for font size (fill the entire height)
-            float fontSize = boxHeight;
-            
-            // Calculate natural text width at this font size
-            float naturalWidth = font.getWidth(txt, fontSize);
-            
-            // Calculate horizontal scaling to fill bbox width
-            float horizontalScaling = 100f;
-            if (naturalWidth > 0) {
-                horizontalScaling = (boxWidth / naturalWidth) * 100f;
-            }
-            
-            // Position baseline at bottom of bbox (0% offset to fill entire height)
-            float tx = (float) pdfX0;
-            float ty = (float) pdfY0;
 
-            // Add text as native PDF text (this makes it selectable and searchable)
-            // Scale both height and width to fill the entire bounding box
+            // Compute rotation-aware font size, scaling and text matrix
+            int angle = w.getAngle();
+            float fontSize, horizontalScaling, tmA, tmB, tmC, tmD, tmX, tmY;
+            if (angle == 90 || angle == 270) {
+                // Rotated 90°/270°: narrow dim = char height, tall dim = text length
+                fontSize = Math.max(1.0f, boxWidth);
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxHeight / naturalWidth) * 100f : 100f;
+                if (angle == 90) {
+                    // 90° CW: baseline runs top-to-bottom; anchor at (pdfX0, pdfY1)
+                    tmA = 0; tmB = -1; tmC = 1; tmD = 0; tmX = (float) pdfX0; tmY = (float) pdfY1;
+                } else {
+                    // 270° (90° CCW): baseline runs bottom-to-top; anchor at (pdfX1, pdfY0)
+                    tmA = 0; tmB = 1; tmC = -1; tmD = 0; tmX = (float) pdfX1; tmY = (float) pdfY0;
+                }
+            } else if (angle == 180) {
+                // 180°: upside-down; anchor at (pdfX1, pdfY1)
+                fontSize = boxHeight;
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxWidth / naturalWidth) * 100f : 100f;
+                tmA = -1; tmB = 0; tmC = 0; tmD = -1; tmX = (float) pdfX1; tmY = (float) pdfY1;
+            } else {
+                // angle == 0: normal horizontal text
+                fontSize = boxHeight;
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxWidth / naturalWidth) * 100f : 100f;
+                tmA = 1; tmB = 0; tmC = 0; tmD = 1; tmX = (float) pdfX0; tmY = (float) pdfY0;
+            }
+
             canvas.beginText();
             canvas.setFontAndSize(font, fontSize);
-            canvas.setHorizontalScaling(horizontalScaling);  // Scale width to fill bbox
-            canvas.moveText(tx, ty);
+            canvas.setHorizontalScaling(horizontalScaling);
+            canvas.setTextMatrix(tmA, tmB, tmC, tmD, tmX, tmY);
             canvas.showText(txt);
             canvas.endText();
         }
@@ -638,21 +649,35 @@ public class StandalonePaddleIntegrator {
 
             float boxWidth = (float) (pdfX1 - pdfX0);
             float boxHeight = Math.max(1.0f, (float)(pdfY1 - pdfY0));
-            
-            // Use 100% of bbox height for font size (fill the entire height)
-            float fontSize = boxHeight;
-            
-            // Calculate natural text width at this font size
-            float naturalWidth = font.getWidth(txt, fontSize);
-            
-            // Calculate horizontal scaling to fill bbox width
-            float horizontalScaling = 100f;
-            if (naturalWidth > 0) {
-                horizontalScaling = (boxWidth / naturalWidth) * 100f;
+
+            // Compute rotation-aware font size, scaling and text matrix
+            int angle = w.getAngle();
+            float fontSize, horizontalScaling, tmA, tmB, tmC, tmD, tmX, tmY;
+            if (angle == 90 || angle == 270) {
+                // Rotated 90°/270°: narrow dim = char height, tall dim = text length
+                fontSize = Math.max(1.0f, boxWidth);
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxHeight / naturalWidth) * 100f : 100f;
+                if (angle == 90) {
+                    // 90° CW: baseline runs top-to-bottom; anchor at (pdfX0, pdfY1)
+                    tmA = 0; tmB = -1; tmC = 1; tmD = 0; tmX = (float) pdfX0; tmY = (float) pdfY1;
+                } else {
+                    // 270° (90° CCW): baseline runs bottom-to-top; anchor at (pdfX1, pdfY0)
+                    tmA = 0; tmB = 1; tmC = -1; tmD = 0; tmX = (float) pdfX1; tmY = (float) pdfY0;
+                }
+            } else if (angle == 180) {
+                // 180°: upside-down; anchor at (pdfX1, pdfY1)
+                fontSize = boxHeight;
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxWidth / naturalWidth) * 100f : 100f;
+                tmA = -1; tmB = 0; tmC = 0; tmD = -1; tmX = (float) pdfX1; tmY = (float) pdfY1;
+            } else {
+                // angle == 0: normal horizontal text
+                fontSize = boxHeight;
+                float naturalWidth = font.getWidth(txt, fontSize);
+                horizontalScaling = (naturalWidth > 0) ? (boxWidth / naturalWidth) * 100f : 100f;
+                tmA = 1; tmB = 0; tmC = 0; tmD = 1; tmX = (float) pdfX0; tmY = (float) pdfY0;
             }
-            
-            // Position baseline at bottom of bbox (0% offset to fill entire height)
-            float baselineY = (float) pdfY0;
 
             // Add tag structure for accessibility
             tagPointer.addTag(StandardRoles.P);
@@ -687,9 +712,9 @@ public class StandalonePaddleIntegrator {
             // Scale both height and width to fill the entire bounding box
             canvas.beginText();
             canvas.setFontAndSize(font, fontSize);
-            canvas.setHorizontalScaling(horizontalScaling);  // Scale width to fill bbox
-            canvas.moveText((float) pdfX0, baselineY);
-            canvas.showText(txt);  // Entire phrase as single string - prevents character-level false matches
+            canvas.setHorizontalScaling(horizontalScaling);
+            canvas.setTextMatrix(tmA, tmB, tmC, tmD, tmX, tmY);
+            canvas.showText(txt);
             canvas.endText();
             
             canvas.closeTag();

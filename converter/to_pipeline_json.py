@@ -157,6 +157,7 @@ def build_pipeline_json(
                     "bbox_2d": w_coord,
                     "pdf_bbox": w_pdf,
                     "source": "doctr_qwen",
+                    "angle": w.get("angle", 0),
                 })
 
             boxes.append({

@@ -186,6 +186,10 @@ public class StandaloneJsonParser {
                 } else if (wordNode.has("bbox") && wordNode.get("bbox").isArray()) {
                     word.setBbox(parseDoubleList(wordNode.get("bbox")));
                 }
+                // Parse rotation angle (0/90/180/270); default 0 for backward compat
+                if (wordNode.has("angle")) {
+                    word.setAngle(wordNode.get("angle").asInt(0));
+                }
                 // Keep only words with both text and at least one bbox
                 if (word.getText() != null && !word.getText().trim().isEmpty()
                         && (word.getBbox() != null && word.getBbox().size() >= 4
@@ -669,15 +673,19 @@ public class StandaloneJsonParser {
         private String text;
         private List<Double> bbox;      // Image coordinates (fallback)
         private List<Double> pdfBbox;   // PDF coordinates (preferred if available)
+        private int angle = 0;          // Rotation angle: 0, 90, 180, 270 (degrees CCW image was rotated to detect text)
 
         public String getText() { return text; }
         public void setText(String text) { this.text = text; }
 
         public List<Double> getBbox() { return bbox; }
         public void setBbox(List<Double> bbox) { this.bbox = bbox; }
-        
+
         public List<Double> getPdfBbox() { return pdfBbox; }
         public void setPdfBbox(List<Double> pdfBbox) { this.pdfBbox = pdfBbox; }
+
+        public int getAngle() { return angle; }
+        public void setAngle(int angle) { this.angle = angle; }
     }
     
     /**

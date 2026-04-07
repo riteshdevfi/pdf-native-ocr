@@ -39,7 +39,7 @@ except ImportError:
 # Input: set INPUT_FILE to process a single PDF, or INPUT_DIR to process all PDFs in a folder.
 # INPUT_FILE takes priority — set it to "" to use INPUT_DIR instead.
 # INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 2 Barker Karpis Part 01 of 10_15pg extract.pdf"
-INPUT_FILE = "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/0003.pdf"
+INPUT_FILE = "./0003.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/0003.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 3 Al Capone Vault_15pg extract.pdf"
 # "/home/ritesh_manchikanti/work/FBI-Redact/pdf-native-ocr/input/EXAMPLE 1 Leave Policy Guide Vault 1_15pg extract.pdf"

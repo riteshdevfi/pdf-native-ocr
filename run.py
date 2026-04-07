@@ -81,8 +81,8 @@ _DEFAULT_WORKERS = "1" if LLM_PROVIDER != "vllm" else "15"
 QWEN_MAX_WORKERS = int(os.getenv("LLM_MAX_WORKERS", os.getenv("QWEN_MAX_WORKERS", _DEFAULT_WORKERS)))
 print(f"[CONFIG] LLM_PROVIDER={LLM_PROVIDER}, LLM_MAX_WORKERS={QWEN_MAX_WORKERS}, LLM_MODEL={QWEN_MODEL}")
 
-USE_QWEN_TEXT = os.getenv("USE_QWEN_TEXT", "true").lower() in ("true", "1", "yes", "on")
-USE_QWEN_FALLBACK = os.getenv("USE_QWEN_FALLBACK", "true").lower() in ("true", "1", "yes", "on")
+USE_QWEN_TEXT = os.getenv("USE_QWEN_TEXT", "false").lower() in ("true", "1", "yes", "on")
+USE_QWEN_FALLBACK = os.getenv("USE_QWEN_FALLBACK", "false").lower() in ("true", "1", "yes", "on")
 QWEN_FALLBACK_AVG_RATIO = float(os.getenv("QWEN_FALLBACK_AVG_RATIO", "0.5"))
 QWEN_FULL_OCR_MAX_TOKENS = int(os.getenv("QWEN_FULL_OCR_MAX_TOKENS", "8192"))
 

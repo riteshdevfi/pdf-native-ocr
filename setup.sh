@@ -24,9 +24,18 @@ source "$VENV_DIR/bin/activate"
 echo "Python: $(python --version)"
 
 echo ""
-echo "Installing dependencies..."
+echo "Installing system dependencies..."
+sudo apt install -y libgl1 libglib2.0-0 2>/dev/null || echo "  (skipped — install libgl1 manually if cv2 import fails)"
+
+echo ""
+echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r "$SCRIPT_DIR/requirements.txt"
+
+# Install PyTorch with CUDA support (replaces CPU-only version from PyPI)
+echo ""
+echo "Installing PyTorch with CUDA support..."
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 
 echo ""
 echo "=========================================="
